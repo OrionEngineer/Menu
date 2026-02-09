@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雷氏风味斋 · 电子菜单</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #c62828;
+      --secondary: #5d4037;
+      --accent: #8d6e63;
+      --bg-light: #fffdf9;
+      --bg-card: #ffffff;
+      --text-dark: #2e1b1b;
+      --text-gray: #5a5a5a;
+      --border: #e8d9c9;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --selected: #2e7d32;
+      --selected-bg: #e8f5e9;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #f5f0e6 100%);
+      color: var(--text-dark);
+      line-height: 1.6;
+      padding: 20px;
+      background-attachment: fixed;
+    }
+    
+    .menu-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .header {
+      background: linear-gradient(120deg, var(--primary), #8b0000);
+      color: white;
+      text-align: center;
+      padding: 35px 20px 25px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%);
+      z-index: 1;
+    }
+    
+    .restaurant-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .slogan {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin-top: 5px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .divider {
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 12px auto;
+      width: 80px;
+      border-radius: 2px;
+    }
+    
+    /* ============ 已选菜品区域 ============ */
+    .selected-dishes-section {
+      background: linear-gradient(135deg, var(--secondary), #4e342e);
+      color: white;
+      padding: 20px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .selected-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.4rem;
+    }
+    
+    .selected-count {
+      background: var(--primary);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    
+    .selected-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 36px;
+    }
+    
+    .selected-item {
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .selected-item-close {
+      cursor: pointer;
+      font-size: 0.8rem;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    
+    .selected-item-close:hover {
+      opacity: 1;
+      color: var(--primary);
+    }
+    
+    .selected-empty {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+    }
+    
+    .btn-clear {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    
+    .btn-clear:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .btn-share {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-share:hover {
+      background: #d32f2f;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    
+    /* ============ 菜单主体 ============ */
+    .category {
+      padding: 25px 30px;
+      border-bottom: 1px dashed var(--border);
+    }
+    
+    .category:last-child {
+      border-bottom: none;
+    }
+    
+    .category-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.8rem;
+      color: var(--secondary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      padding-left: 10px;
+    }
+    
+    .category-title::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 28px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    
+    .subcategory-title {
+      font-size: 1.3rem;
+      color: var(--accent);
+      margin: 18px 0 12px 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    
+    .subcategory-title::before {
+      content: "•";
+      margin-right: 8px;
+      color: var(--primary);
+      font-size: 1.8rem;
+      line-height: 0.6;
+    }
+    
+    .dishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+      margin-top: 8px;
+    }
+    
+    .dish-card {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 14px;
+      border-left: 3px solid var(--primary);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .dish-card:hover {
+      transform: translateX(5px);
+      box-shadow: var(--shadow);
+      background: #fff9f5;
+    }
+    
+    .dish-card.selected {
+      border-left: 3px solid var(--selected);
+      background: var(--selected-bg);
+      box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
+    }
+    
+    .dish-card.selected::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 22px;
+      height: 22px;
+      background: var(--selected);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .dish-name {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--secondary);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .dish-desc {
+      font-size: 0.95rem;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
+    
+    .footer {
+      background: var(--secondary);
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      padding: 25px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+    
+    .highlight {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    .print-note {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 12px 15px;
+      margin-top: 15px;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.9rem;
+      color: var(--secondary);
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    
+    @media (max-width: 768px) {
+      .dishes-grid {
+        grid-template-columns: 1fr;
+      }
+      .restaurant-name {
+        font-size: 2.3rem;
+        letter-spacing: 4px;
+      }
+      .category {
+        padding: 20px;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+    
+    @media print {
+      .selected-dishes-section, .action-buttons, .no-print {
+        display: none;
+      }
+      body {
+        background: white;
+        padding: 0;
+      }
+      .menu-container {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: 100%;
+      }
+      .dish-card:hover, .dish-card.selected {
+        transform: none;
+        box-shadow: none;
+        background: white;
+      }
+      .dish-card.selected::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="menu-container">
+    <header class="header">
+      <h1 class="restaurant-name">雷氏风味斋</h1>
+      <div class="divider"></div>
+      <!--<p class="slogan">私房小菜 · 挚友同欢</p>-->
+    </header>
+    
+    <!-- ============ 已选菜品区域 ============ -->
+    <section class="selected-dishes-section">
+      <div class="selected-title">
+        <span>✓ 已选菜品</span>
+        <span class="selected-count" id="selectedCount">0</span>
+      </div>
+      <div class="selected-list" id="selectedList">
+        <span class="selected-empty">暂未选择菜品</span>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-clear" onclick="clearSelection()">🗑️ 清空</button>
+        <button class="btn btn-share" onclick="shareSelection()">📱 点餐</button>
+      </div>
+    </section>
+    
+    <!-- ============ 菜单内容 ============ -->
+    <section class="category">
+      <h2 class="category-title">🥗 凉菜 · 清爽开胃</h2>
+      <div class="dishes-grid">
+        <div class="dish-card" data-name="鸡枞菌菠菜">
+          <div class="dish-name">鸡枞菌菠菜</div>
+          <div class="dish-desc">云南珍菌配嫩菠菜，清香爽口</div>
+        </div>
+        <div class="dish-card" data-name="拍黄瓜">
+          <div class="dish-name">拍黄瓜</div>
+          <div class="dish-desc">蒜香脆嫩，酸辣开胃</div>
+        </div>
+        <div class="dish-card" data-name="赛香瓜">
+          <div class="dish-name">赛香瓜</div>
+          <div class="dish-desc">秘制酱香，脆甜如瓜</div>
+        </div>
+        <div class="dish-card" data-name="酱牛肉">
+          <div class="dish-name">酱牛肉</div>
+          <div class="dish-desc">老卤慢炖，肉质紧实醇香</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="category">
+      <h2 class="category-title">🔥 热菜 · 匠心烹制</h2>
+      
+      <h3 class="subcategory-title">肉类精选</h3>
+      <div class="dishes-grid">
+        <div class="dish-card" data-name="牛排">
+          <div class="dish-name">牛排</div>
+          <div class="dish-desc">铸铁锅煎制，外焦里嫩</div>
+        </div>
+        <div class="dish-card" data-name="糖醋排骨">
+          <div class="dish-name">糖醋排骨</div>
+          <div class="dish-desc">酸甜酥糯，老少皆宜</div>
+        </div>
+        <div class="dish-card" data-name="油焖鸡">
+          <div class="dish-name">油焖鸡</div>
+          <div class="dish-desc">酱香浓郁，肉质滑嫩</div>
+        </div>
+        <div class="dish-card" data-name="宫保鸡丁">
+          <div class="dish-name">宫保鸡丁</div>
+          <div class="dish-desc">花椒干香，酸甜微辣</div>
+        </div>
+        <div class="dish-card" data-name="锅包肉">
+          <div class="dish-name">锅包肉</div>
+          <div class="dish-desc">金黄酥脆，酸甜解腻</div>
+        </div>
+        <div class="dish-card" data-name="虎皮鸡爪">
+          <div class="dish-name">虎皮鸡爪</div>
+          <div class="dish-desc">软糯入味，胶质丰盈</div>
+        </div>
+      </div>
+      
+      <h3 class="subcategory-title">河海鲜味</h3>
+      <div class="dishes-grid">
+        <div class="dish-card" data-name="清蒸鲈鱼">
+          <div class="dish-name">清蒸鲈鱼</div>
+          <div class="dish-desc">鲜嫩原味，豉油提鲜</div>
+        </div>
+        <div class="dish-card" data-name="白灼基围虾">
+          <div class="dish-name">白灼基围虾</div>
+          <div class="dish-desc">原汁原味，蘸酱尤佳</div>
+        </div>
+        <div class="dish-card" data-name="干炸带鱼">
+          <div class="dish-name">干炸带鱼</div>
+          <div class="dish-desc">外酥里嫩，咸香可口</div>
+        </div>
+      </div>
+      
+      <h3 class="subcategory-title">家常小炒</h3>
+      <div class="dishes-grid">
+        <div class="dish-card" data-name="肉末豆腐">
+          <div class="dish-name">肉末豆腐</div>
+          <div class="dish-desc">嫩滑入味，酱香浓郁</div>
+        </div>
+        <div class="dish-card" data-name="肉末茄子">
+          <div class="dish-name">肉末茄子</div>
+          <div class="dish-desc">软糯吸汁，下饭佳品</div>
+        </div>
+        <div class="dish-card" data-name="青椒炒荷包蛋">
+          <div class="dish-name">青椒炒荷包蛋</div>
+          <div class="dish-desc">家常风味，营养均衡</div>
+        </div>
+        <div class="dish-card" data-name="炝炒莲花白">
+          <div class="dish-name">炝炒莲花白</div>
+          <div class="dish-desc">清脆爽口，蒜香扑鼻</div>
+        </div>
+        <div class="dish-card" data-name="醋溜白菜">
+          <div class="dish-name">醋溜白菜</div>
+          <div class="dish-desc">酸香脆嫩，开胃解腻</div>
+        </div>
+        <div class="dish-card" data-name="酸辣土豆丝">
+          <div class="dish-name">酸辣土豆丝</div>
+          <div class="dish-desc">刀工细丝，酸辣爽脆</div>
+        </div>
+        <div class="dish-card" data-name="清炒时蔬">
+          <div class="dish-name">清炒时蔬</div>
+          <div class="dish-desc">时令鲜蔬，清淡养生</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="category">
+      <h2 class="category-title">🍲 汤品 · 滋补暖胃</h2>
+      <div class="dishes-grid">
+        <div class="dish-card" data-name="清炖牛肉汤">
+          <div class="dish-name">清炖牛肉汤</div>
+          <div class="dish-desc">汤清味醇，温补养身</div>
+        </div>
+        <div class="dish-card" data-name="老母鸡汤">
+          <div class="dish-name">老母鸡汤</div>
+          <div class="dish-desc">金黄浓郁，滋补元气</div>
+        </div>
+        <div class="dish-card" data-name="玉米排骨汤">
+          <div class="dish-name">玉米排骨汤</div>
+          <div class="dish-desc">清甜润燥，老少咸宜</div>
+        </div>
+        <div class="dish-card" data-name="排骨藕汤">
+          <div class="dish-name">排骨藕汤</div>
+          <div class="dish-desc">湖北风味，粉糯香浓</div>
+        </div>
+        <div class="dish-card" data-name="红枣香菜肉丸汤">
+          <div class="dish-name">红枣香菜肉丸汤</div>
+          <div class="dish-desc">丸子弹嫩，暖胃舒心</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="category">
+      <h2 class="category-title">🍚 主食 · 饱腹暖心</h2>
+      <div class="dishes-grid">
+        <div class="dish-card" data-name="手工疙瘩汤">
+          <div class="dish-name">手工疙瘩汤</div>
+          <div class="dish-desc">面疙瘩滑爽，汤鲜味美</div>
+        </div>
+        <div class="dish-card" data-name="时蔬菜饼">
+          <div class="dish-name">时蔬菜饼</div>
+          <div class="dish-desc">外酥里软，清香可口</div>
+        </div>
+        <div class="dish-card" data-name="番茄肉酱意面">
+          <div class="dish-name">番茄肉酱意面</div>
+          <div class="dish-desc">中西融合，酸甜开胃</div>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="footer">
+      <p class="highlight" style="margin-top:8px; font-weight:500">✨ 所有菜品均可根据口味调整 | 部分菜品需提取预订</p>
+      <div class="print-note no-print">
+        💡 <strong>使用提示：</strong>点击菜品可多选，点击"点餐"按钮可一键复制已点菜品
+      </div>
+    </footer>
+  </div>
+  
+  <script>
+    // ============ 核心功能 ============
+    const selectedDishes = new Set(); // 存储已选菜品名称
+    const selectedListEl = document.getElementById('selectedList');
+    const selectedCountEl = document.getElementById('selectedCount');
+    
+    // 渲染已选菜品列表
+    function renderSelectedList() {
+      if (selectedDishes.size === 0) {
+        selectedListEl.innerHTML = '<span class="selected-empty">暂未选择菜品</span>';
+        selectedCountEl.textContent = '0';
+        return;
+      }
+      
+      selectedCountEl.textContent = selectedDishes.size;
+      
+      let html = '';
+      selectedDishes.forEach(dishName => {
+        html += `
+          <div class="selected-item">
+            ${dishName}
+            <span class="selected-item-close" onclick="removeDish('${dishName}')">×</span>
+          </div>
+        `;
+      });
+      
+      selectedListEl.innerHTML = html;
+    }
+    
+    // 添加/移除菜品
+    function toggleDish(dishName) {
+      if (selectedDishes.has(dishName)) {
+        selectedDishes.delete(dishName);
+      } else {
+        selectedDishes.add(dishName);
+      }
+      renderSelectedList();
+    }
+    
+    // 移除单个菜品
+    function removeDish(dishName) {
+      selectedDishes.delete(dishName);
+      renderSelectedList();
+      
+      // 更新菜品卡片样式
+      document.querySelectorAll(`.dish-card[data-name="${dishName}"]`).forEach(card => {
+        card.classList.remove('selected');
+      });
+    }
+    
+    // 清空所有选择
+    function clearSelection() {
+      selectedDishes.clear();
+      renderSelectedList();
+      document.querySelectorAll('.dish-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+    }
+    
+    // 生成订单文本
+    function generateOrderText() {
+      if (selectedDishes.size === 0) {
+        return '【雅宴轩点餐】\n\n暂未选择任何菜品';
+      }
+      
+      let orderText = '【预约点餐】\n\n';
+      orderText += `已选菜品（共${selectedDishes.size}道）：\n`;
+      orderText += '──────────────\n';
+      
+      let index = 1;
+      selectedDishes.forEach(dishName => {
+        orderText += `${index}. ${dishName}\n`;
+        index++;
+      });
+      
+      orderText += '──────────────\n\n';
+      orderText += '请确认后下单，谢谢！';
+      
+      return orderText;
+    }
+    
+    // 分享/点餐功能
+    function shareSelection() {
+      if (selectedDishes.size === 0) {
+        alert('⚠️ 请先选择菜品');
+        return;
+      }
+      
+      const orderText = generateOrderText();
+      
+      // 复制到剪贴板
+      navigator.clipboard.writeText(orderText).then(() => {
+        alert('✅ 点餐信息已复制！\n\n' + orderText + '\n\n请粘贴到聊天窗口，发送给雷师傅或潘师傅');
+      }).catch(err => {
+        // 降级方案：使用 prompt
+        prompt('点餐信息（请全选并复制）：', orderText);
+      });
+    }
+    
+    // ============ 事件绑定 ============
+    document.querySelectorAll('.dish-card').forEach(card => {
+      const dishName = card.getAttribute('data-name');
+      
+      card.addEventListener('click', function() {
+        // 切换选中状态
+        this.classList.toggle('selected');
+        toggleDish(dishName);
+      });
+    });
+    
+    // ============ 初次渲染 ============
+    renderSelectedList();
+  </script>
+</body>
+</html>
