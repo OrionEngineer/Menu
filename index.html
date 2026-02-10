@@ -36,7 +36,7 @@
       padding: 20px;
       background-attachment: fixed;
       min-height: 100vh;
-      padding-bottom: 160px; /* 为底部区域预留空间 */
+      padding-bottom: 280px; /* 为底部区域预留空间 */
     }
     
     .menu-container {
@@ -136,6 +136,24 @@
       width: calc(100% - 40px);
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
+      max-height: 180px; /* 最大高度180px */
+      overflow-y: auto;  /* 超出部分垂直滚动 */
+    }
+
+    /* 隐藏滚动条（美观），但仍可滚动 */
+    .selected-bottom::-webkit-scrollbar {
+      width: 6px;
+    }
+    .selected-bottom::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+    }
+    .selected-bottom::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+    .selected-bottom::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.5);
     }
     
     .selected-title {
@@ -144,7 +162,7 @@
       align-items: center;
       margin-bottom: 10px;
       font-family: 'Noto Serif SC', serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
     
     .selected-count {
@@ -166,7 +184,7 @@
       flex-wrap: wrap;
       gap: 8px;
       min-height: 32px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     
     .selected-item {
