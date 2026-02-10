@@ -679,11 +679,10 @@
     // 生成订单文本
     function generateOrderText() {
       if (selectedDishes.size === 0) {
-        return '【雅宴轩点餐】\n\n暂未选择任何菜品';
+        return '\n暂未选择任何菜品\n';
       }
       
-      let orderText = '【预约点餐】\n\n';
-      orderText += `已选菜品（共${selectedDishes.size}道）：\n`;
+      let orderText = `已选菜品（共${selectedDishes.size}道）：\n`;
       orderText += '──────────────\n';
       
       let index = 1;
