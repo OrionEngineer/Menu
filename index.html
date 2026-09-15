@@ -670,31 +670,70 @@
   
   <script>
     // ============ 核心功能 ============
+    const STORAGE_KEY = 'menu_selected_dishes';
     const selectedDishes = new Set(); // 存储已选菜品名称
     const selectedListEl = document.getElementById('selectedList');
     const selectedCountEl = document.getElementById('selectedCount');
+
+    // ============ 状态持久化（localStorage） ============
+    function saveSelection() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...selectedDishes]));
+      } catch (e) {
+        console.warn('无法保存选择状态:', e);
+      }
+    }
+
+    function loadSelection() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const arr = JSON.parse(saved);
+          if (Array.isArray(arr)) {
+            arr.forEach(name => selectedDishes.add(name));
+          }
+        }
+      } catch (e) {
+        console.warn('无法读取选择状态:', e);
+      }
+    }
     
-    // 渲染已选菜品列表
+    // 渲染已选菜品列表（使用 DOM 构建，避免 XSS 风险）
     function renderSelectedList() {
+      // 清空列表
+      while (selectedListEl.firstChild) {
+        selectedListEl.removeChild(selectedListEl.firstChild);
+      }
+
       if (selectedDishes.size === 0) {
-        selectedListEl.innerHTML = '<span class="selected-empty">暂未选择菜品</span>';
+        const emptySpan = document.createElement('span');
+        emptySpan.className = 'selected-empty';
+        emptySpan.textContent = '暂未选择菜品';
+        selectedListEl.appendChild(emptySpan);
         selectedCountEl.textContent = '0';
         return;
       }
-      
+
       selectedCountEl.textContent = selectedDishes.size;
-      
-      let html = '';
+
       selectedDishes.forEach(dishName => {
-        html += `
-          <div class="selected-item">
-            ${dishName}
-            <span class="selected-item-close" onclick="removeDish('${dishName}')">×</span>
-          </div>
-        `;
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'selected-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = dishName;
+        itemDiv.appendChild(nameSpan);
+
+        const closeSpan = document.createElement('span');
+        closeSpan.className = 'selected-item-close';
+        closeSpan.textContent = '×';
+        closeSpan.addEventListener('click', function() {
+          removeDish(dishName);
+        });
+        itemDiv.appendChild(closeSpan);
+
+        selectedListEl.appendChild(itemDiv);
       });
-      
-      selectedListEl.innerHTML = html;
     }
     
     // 添加/移除菜品
@@ -705,13 +744,15 @@
         selectedDishes.add(dishName);
       }
       renderSelectedList();
+      saveSelection();
     }
     
     // 移除单个菜品
     function removeDish(dishName) {
       selectedDishes.delete(dishName);
       renderSelectedList();
-      
+      saveSelection();
+
       // 更新菜品卡片样式
       document.querySelectorAll(`.dish-card[data-name="${dishName}"]`).forEach(card => {
         card.classList.remove('selected');
@@ -722,6 +763,7 @@
     function clearSelection() {
       selectedDishes.clear();
       renderSelectedList();
+      saveSelection();
       document.querySelectorAll('.dish-card').forEach(card => {
         card.classList.remove('selected');
       });
@@ -768,16 +810,32 @@
     // ============ 事件绑定 ============
     document.querySelectorAll('.dish-card').forEach(card => {
       const dishName = card.getAttribute('data-name');
-      
+
       card.addEventListener('click', function() {
         // 切换选中状态
         this.classList.toggle('selected');
         toggleDish(dishName);
       });
     });
-    
-    // ============ 初次渲染 ============
+
+    // ============ 加载持久化状态并初次渲染 ============
+    loadSelection();
+    // 恢复已选菜品的卡片视觉状态
+    selectedDishes.forEach(dishName => {
+      document.querySelectorAll(`.dish-card[data-name="${dishName}"]`).forEach(card => {
+        card.classList.add('selected');
+      });
+    });
     renderSelectedList();
+
+    // ============ Service Worker 注册（PWA 离线支持） ============
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('Service Worker 注册失败:', err);
+        });
+      });
+    }
   </script>
 </body>
 </html>
