@@ -1,0 +1,428 @@
+:root {
+  --primary: #c62828;
+  --secondary: #5d4037;
+  --accent: #8d6e63;
+  --bg-light: #fffdf9;
+  --bg-card: #ffffff;
+  --text-dark: #2e1b1b;
+  --text-gray: #5a5a5a;
+  --border: #e8d9c9;
+  --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --selected: #2e7d32;
+  --selected-bg: #e8f5e9;
+  --tip-bg: #fff8e1;
+  --tip-border: #ffc107;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, var(--bg-light) 0%, #f5f0e6 100%);
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding: 20px;
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding-bottom: 280px; /* 为底部区域预留空间 */
+}
+
+.menu-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  background: linear-gradient(120deg, var(--primary), #8b0000);
+  color: white;
+  text-align: center;
+  padding: 35px 20px 25px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%);
+  z-index: 1;
+}
+
+.restaurant-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.slogan {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-top: 5px;
+  position: relative;
+  z-index: 2;
+}
+
+.divider {
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  margin: 12px auto;
+  width: 80px;
+  border-radius: 2px;
+}
+
+/* ============ 使用提示（顶部） ============ */
+.usage-tip {
+  background: var(--tip-bg);
+  border: 1px solid var(--tip-border);
+  border-radius: 8px;
+  padding: 6px 16px;
+  margin: 25px auto 0;
+  max-width: 600px;
+  font-size: 0.85rem;
+  color: #5d4037;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.usage-tip::before {
+  content: "\1F4A1";
+  margin-right: 8px;
+  font-size: 0.85rem;
+}
+
+/* ============ 底部已选菜品区域（固定在底部） ============ */
+.selected-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: linear-gradient(135deg, var(--secondary), #4e342e);
+  color: white;
+  padding: 16px 20px;
+  box-shadow: 0 -3px 15px rgba(0,0,0,0.2);
+  max-width: 900px;
+  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  max-height: 180px; /* 最大高度180px */
+  overflow-y: auto;  /* 超出部分垂直滚动 */
+}
+
+/* 隐藏滚动条（美观），但仍可滚动 */
+.selected-bottom::-webkit-scrollbar {
+  width: 6px;
+}
+.selected-bottom::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+}
+.selected-bottom::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+}
+.selected-bottom::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+.selected-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1rem;
+}
+
+.selected-count {
+  background: var(--primary);
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+  margin-bottom: 10px;
+}
+
+.selected-item {
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selected-item-close {
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.selected-item-close:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.selected-empty {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.85rem;
+}
+
+.btn-clear {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.btn-clear:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.btn-share {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-share:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+/* ============ 菜单主体 ============ */
+.category {
+  padding: 25px 30px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.category:last-child {
+  border-bottom: none;
+}
+
+.category-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.8rem;
+  color: var(--secondary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  padding-left: 10px;
+}
+
+.category-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 28px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.subcategory-title {
+  font-size: 1.3rem;
+  color: var(--accent);
+  margin: 18px 0 12px 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.subcategory-title::before {
+  content: "\2022";
+  margin-right: 8px;
+  color: var(--primary);
+  font-size: 1.8rem;
+  line-height: 0.6;
+}
+
+.dishes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.dish-card {
+  background: var(--bg-card);
+  border-radius: 10px;
+  padding: 14px;
+  border-left: 3px solid var(--primary);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  position: relative;
+}
+
+.dish-card:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow);
+  background: #fff9f5;
+}
+
+.dish-card.selected {
+  border-left: 3px solid var(--selected);
+  background: var(--selected-bg);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
+}
+
+.dish-card.selected::after {
+  content: "\2713";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  background: var(--selected);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.dish-name {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--secondary);
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dish-desc {
+  font-size: 0.95rem;
+  color: var(--text-gray);
+  line-height: 1.5;
+}
+
+.footer {
+  background: var(--secondary);
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  padding: 25px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.highlight {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .dishes-grid {
+    grid-template-columns: 1fr;
+  }
+  .restaurant-name {
+    font-size: 2.3rem;
+    letter-spacing: 4px;
+  }
+  .category {
+    padding: 20px;
+  }
+  .action-buttons {
+    flex-direction: row;
+  }
+  .btn {
+    width: 100%;
+  }
+  .selected-bottom {
+    width: 100%;
+    left: 0;
+    transform: none;
+    padding: 14px;
+  }
+  body {
+    padding-bottom: 150px;
+  }
+  .usage-tip {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+}
+
+@media print {
+  .selected-bottom, .usage-tip {
+    display: none;
+  }
+  body {
+    background: white;
+    padding: 0;
+    padding-bottom: 0;
+  }
+  .menu-container {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+  }
+  .dish-card:hover, .dish-card.selected {
+    transform: none;
+    box-shadow: none;
+    background: white;
+  }
+  .dish-card.selected::after {
+    display: none;
+  }
+}
