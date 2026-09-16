@@ -5,6 +5,9 @@ const CACHE_NAME = 'menu-cache-v1';
 const CACHE_URLS = [
   './',
   './index.html',
+  './style.css',
+  './app.js',
+  './menu-data.json',
   './site.webmanifest',
   './favicon.ico',
   './favicon-32x32.png',
